@@ -139,11 +139,7 @@ def digit2txt(strNum):
 #
 def clean_text(txt):
     ### transform english char to korean text
-    transform_dict = {'a': '에이', 'b': '비', 'c': '시', 'd': '디', 'e': '이', 'f': '에프', 'g': '지', 'h': '에이치', 'i': '아이',
-                      'j': '제이', 'k': '케이', 'l': '엘', 'm': '엠',
-                      'n': '엔', 'o': '오', 'p': '피', 'q': '큐', 'r': '아르', 's': '에스', 't': '티', 'u': '유', 'v': '브이',
-                      'w': '더블유', 'x': '엑스', 'y': '와이', 'z': '제트',
-                      u"'": u'"', '(': ', ', ')': ', ', '#': '샵', '%': '프로', '@': '고팽이', '+': '더하기', '-': '빼기',
+    transform_dict = {u"'": u'"', '(': ', ', ')': ', ', '#': '샵', '%': '프로', '@': '고팽이', '+': '더하기', '-': '빼기',
                       ':': '나누기', '*': '별'}
     ### remove not allowed chars
     # not_allowed_characters = list('^~‘’')
@@ -257,10 +253,10 @@ def text_to_sequence(txt, cleaner, lang=0):
     return sequence, mask
 
 
-# print(_symbol_to_id)
-#Unfortunately he took to drink
-#txt='안녕하~[세요]'
-# txt = 'and a heavy fee at the ~ rate of 8 안녕 per 100, with 4 for 여러분 every [additional] hundred.'
-
-#print(text_to_sequence(txt, cleaner=['english_cleaners'], lang=0)[0])
-# sequence_to_text(text_to_sequence(txt, ['english_cleaners'], lang=0)[0])
+# # print(_symbol_to_id)
+# #Unfortunately he took to drink
+# #txt='안녕하~[세요]'
+# # txt = 'and a heavy fee at the ~ rate of 8 안녕 per 100, with 4 for 여러분 every [additional] hundred.'
+# txt='조왕을 ᄋᆢᄉᆞᆺ 군데를 헤낫수다.'
+# #print(text_to_sequence(txt, cleaner=['english_cleaners'], lang=0)[0])
+# # sequence_to_text(text_to_sequence(txt, ['english_cleaners'], lang=0)[0])

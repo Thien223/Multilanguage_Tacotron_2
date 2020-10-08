@@ -328,7 +328,7 @@ class Encoder(nn.Module):
 
 
         inputs = inputs.reshape(batch_size // self.hparams.languages_number, self.hparams.languages_number * input_dim, -1)
-        print(inputs.shape)
+
         if plot:
             plt.figure()
             plt.imshow(inputs.float()[0].data.cpu().numpy())
@@ -344,28 +344,29 @@ class Encoder(nn.Module):
             plt.savefig('inference_convolution_outputs.png')
 
 
-        inputs = inputs.transpose(1, 2)
+        # inputs = inputs.transpose(1, 2)
         # inputs = self.dnn(inputs)
         inputs = inputs.reshape(batch_size, self.hparams.encoder_embedding_dim, -1).transpose(1, 2)
         self.lstm.flatten_parameters()
-        inputs = nn.utils.rnn.pack_padded_sequence(inputs, input_lengths, batch_first=True)
+        # inputs = nn.utils.rnn.pack_padded_sequence(inputs, input_lengths, batch_first=True)
         outputs, _ = self.lstm(inputs)
-        outputs, _ = nn.utils.rnn.pad_packed_sequence(outputs, batch_first=True)
+        # outputs, _ = nn.utils.rnn.pad_packed_sequence(outputs, batch_first=True)
         # plt.figure()
         # plt.imshow(inputs.float()[0].data.cpu().numpy())
         # plt.savefig('inferencing_encoder_inputs.png')
 
         # ######
-        # plt.figure()
-        # plt.imshow(inputs.float()[0].data.cpu().numpy())
-        # plt.savefig('inference_lstm_outputs.png')
+        if plot:
+            plt.figure()
+            plt.imshow(outputs.float()[0].data.cpu().numpy())
+            plt.savefig('inference_lstm_outputs.png')
         #####
-        temp_outputs = torch.zeros(1, inputs.shape[1], inputs.shape[2], device=inputs.device, dtype=inputs.dtype)
+        temp_outputs = torch.zeros(1, outputs.shape[1], outputs.shape[2], device=outputs.device, dtype=outputs.dtype)
         inputs_lang_norm = language_ids / language_ids.sum(dim=2, keepdim=True)[0]
 
         for language_id in range(self.hparams.languages_number):
             lang_weight = inputs_lang_norm[0,:,language_id].reshape(-1, 1)
-            temp_outputs[0] = temp_outputs[0] + lang_weight * inputs[language_id]
+            temp_outputs[0] = temp_outputs[0] + lang_weight * outputs[language_id]
         outputs = temp_outputs
 
         if plot:
@@ -610,7 +611,6 @@ class Decoder(nn.Module):
             gate_outputs += [gate_output]
             alignments += [alignment]
             step +=1
-
             if torch.sigmoid(gate_output.data) > self.gate_threshold:
                 break
             elif len(mel_outputs) == self.max_decoder_steps:
@@ -618,10 +618,10 @@ class Decoder(nn.Module):
                 break
             decoder_input = mel_output
         mel_outputs, gate_outputs, alignments = self.parse_decoder_outputs(mel_outputs, gate_outputs, alignments)
-        print(f'alignments shape {alignments.shape}')
         if plot:
             fig, ax = plt.subplots(figsize=(6, 4))
-            im = ax.imshow(alignments[0].float().data.cpu().numpy().T, aspect='auto', origin='lower', interpolation='none')
+            im = ax.imshow(alignments[0,:,:].float().data.cpu().numpy().T, aspect='auto', origin='lower', interpolation='none')
+
             fig.colorbar(im, ax=ax)
             xlabel = 'Decoder timestep'
             plt.xlabel(xlabel, fontproperties=fontproperties)
@@ -801,16 +801,16 @@ class Tacotron2(nn.Module):
         # plt.imshow(mel_outputs.float()[0].data.cpu().numpy())
         # plt.savefig('inference_mel_outputs.png')
 
-
+        print(f'inference mel_outputs.shape {mel_outputs.shape}')
         mel_outputs_postnet = self.postnet(mel_outputs)
         mel_outputs_postnet = mel_outputs + mel_outputs_postnet
         outputs = self.parse_output([mel_outputs, mel_outputs_postnet, gate_outputs, alignments])
+        print(f'inference final_outputs.shape {outputs[0].shape}')
         #
         if plot:
             plt.figure()
             plt.imshow(outputs[0].float()[0].data.cpu().numpy())
             plt.savefig('inference_final_outputs.png')
-
         return outputs
 ### backup
 #
