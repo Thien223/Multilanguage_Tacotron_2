@@ -1,3 +1,4 @@
+Support my efforts: https://www.buymeacoffee.com/tinylucas
 # Tacotron_Prosody_multi_GPU
 This repo is the implementation of Tacotron-2 model for Korean voice.
 
